@@ -2,8 +2,6 @@ package io.sansam.sswork.common.resp;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * ErroResult 业务处理异常统一返回此对象
@@ -13,7 +11,7 @@ import java.io.Serializable;
  * @since 2019-10-21 16:03
  */
 @Data
-public class ErrorResult implements Serializable {
+public class ErrorResult extends Throwable {
 
     private static final long serialVersionUID = -2139914967958859787L;
 

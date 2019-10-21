@@ -2,14 +2,14 @@ package io.sansam.sswork.controller;
 
 import io.sansam.sswork.common.resp.ErrorResult;
 import io.sansam.sswork.common.resp.ResponseResult;
-import io.sansam.sswork.common.resp.Result;
 import io.sansam.sswork.common.resp.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
 
@@ -21,7 +21,7 @@ import java.util.Date;
  * @author houcb
  * @since 2019-10-21 15:17
  */
-@RestController
+@Controller
 @Slf4j
 public class TestController {
 
@@ -49,8 +49,9 @@ public class TestController {
         return set ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
     }
 
-    @PostMapping("/get/{1}")
+    @GetMapping("/get/{1}")
     @ResponseResult
+    @ResponseBody
     public String redisGet(@PathVariable(name = "1") String id) {
         final Object o = redisUtil.get(id);
         return o.toString();

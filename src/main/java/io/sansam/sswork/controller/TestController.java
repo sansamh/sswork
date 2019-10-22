@@ -3,6 +3,7 @@ package io.sansam.sswork.controller;
 import io.sansam.sswork.common.resp.ErrorResult;
 import io.sansam.sswork.common.resp.ResponseResult;
 import io.sansam.sswork.common.resp.ResultCode;
+import io.sansam.sswork.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,6 +32,7 @@ public class TestController {
 
     @GetMapping("/failure")
     @ResponseResult
+    @ResponseBody
     public ErrorResult failure() {
         log.info("进入TestController - failure方法");
         return new ErrorResult(ResultCode.PARAM_NOT_EXISTS);

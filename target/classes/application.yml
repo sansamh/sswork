@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 8889
 
 spring:
   application:
@@ -16,7 +16,7 @@ spring:
     password: password123456
     jedis:
       pool:
-        max-wait: 30000
+        max-wait: -1 #-1标识没限制
         max-active: 100
         max-idle: 20
-        min-idle: 10
+        min-idle: 5

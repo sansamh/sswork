@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * <p>
@@ -56,6 +57,9 @@ public class ResponseResultAdvice implements ResponseBodyAdvice<Object> {
 
         // 处理方法
         final Method method = methodParameter.getMethod();
+        if (Objects.isNull(method)) {
+            return false;
+        }
         String methodName = method.getName();
         String key = clzName + CommonConstant.AND + methodName;
 
@@ -75,7 +79,9 @@ public class ResponseResultAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        log.info("进入ResponseResultAdvice - beforeBodyWrite，重写返回值");
+        // 输出日志
+        printMethodInfo(o, methodParameter);
+
         // 当此方法出现异常，会包装成RestExceptionAdvice的Result.failure，再进入到此方法直接返回
         if (o instanceof Result) {
             return o;
@@ -95,5 +101,22 @@ public class ResponseResultAdvice implements ResponseBodyAdvice<Object> {
             }
         }
         return Result.success(o);
+    }
+
+    /**
+     * 打印日志
+     *
+     * @param o               原返回值
+     * @param methodParameter 方法对象
+     */
+    private void printMethodInfo(Object o, MethodParameter methodParameter) {
+        String name = methodParameter.getDeclaringClass().getName();
+        Method method = methodParameter.getMethod();
+        if (Objects.isNull(method)) {
+            log.warn("获取MethodParameter的Method对象出现异常，method为null，methodParameter = {}", methodParameter);
+        }
+        name = name + CommonConstant.SHARP + (Objects.isNull(method) ? "方法获取失败" : method.getName());
+        log.info("重写方法返回值ResponseResultAdvice - beforeBodyWrite，方法为 = {}，原返回值为 = {}",
+                name, o);
     }
 }

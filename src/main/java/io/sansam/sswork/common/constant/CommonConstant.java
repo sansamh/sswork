@@ -30,4 +30,83 @@ public class CommonConstant {
      */
     public static final String AND = "&";
 
+    /**
+     * #符号
+     */
+    public static final String SHARP = "#";
+
+    /**
+     * OK
+     */
+    public static final String OK = "OK";
+
+    /**
+     * SUCCESS
+     */
+    public static final String SUCCESS = "SUCCESS";
+
+    /**
+     * FAIL
+     */
+    public static final String FAIL = "FAIL";
+
+    /* ********** 数字 **********/
+
+    /**
+     * zero
+     */
+    public static final String ZERO = "0";
+
+    /**
+     * one
+     */
+    public static final String ONE = "1";
+
+    /**
+     * two
+     */
+    public static final String TWO = "2";
+
+    /**
+     * three
+     */
+    public static final String THREE = "3";
+
+    /**
+     * four
+     */
+    public static final String FOUR = "4";
+
+    /**
+     * five
+     */
+    public static final String FIVE = "5";
+
+    /**
+     * six
+     */
+    public static final String SIX = "6";
+
+    /**
+     * seven
+     */
+    public static final String SEVEN = "7";
+
+    /**
+     * eight
+     */
+    public static final String EIGHT = "8";
+
+    /**
+     * nine
+     */
+    public static final String NINE = "9";
+
+    /**
+     * ten
+     */
+    public static final String TEN = "10";
+
+    /* ********** 数字 **********/
+
 }

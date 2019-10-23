@@ -21,4 +21,7 @@ public class RedisProperties {
     private int port;
     private String password;
     private int database;
+
+    // redis cluster 集群配置
+    private String nodes;
 }

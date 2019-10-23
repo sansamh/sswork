@@ -7,8 +7,11 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * <p>
@@ -36,7 +39,41 @@ public class RedissonConfig {
         try {
             return Redisson.create(config);
         } catch (Exception e) {
-            log.error("RedissonConfig - getSingleRedissonClient init redis url = [{}], Exception = ", address, e);
+            log.error("RedissonConfig - getSingleRedissonClient init failed! redis url = [{}]", address, e);
+            return null;
+        }
+    }
+
+    @Bean(name = "clusterRedissonClient")
+    @Nullable
+    public RedissonClient getClusterRedissonClient() {
+        Config config = new Config();
+        String nodes = redisProperties.getNodes();
+        String[] split = StringUtils.split(nodes, ",");
+        if (Objects.isNull(split)) {
+            log.error("RedissonConfig - getClusterRedissonClient init failed! nodes = [{}]", nodes);
+            return null;
+        }
+        String[] address = new String[split.length];
+        String prefix = "redis://";
+        String s;
+        for (int i = 0; i < split.length; i++) {
+            s = split[i];
+            if (!s.startsWith(prefix)) {
+                s = prefix + s;
+            }
+            address[i] = s;
+        }
+
+        config.useClusterServers()
+                // 集群状态扫描时间
+                .setScanInterval(2000)
+                .addNodeAddress(address)
+                .setPassword(redisProperties.getPassword());
+        try {
+            return Redisson.create(config);
+        } catch (Exception e) {
+            log.error("RedissonConfig - getClusterRedissonClient init failed! redis url = [{}]", address, e);
             return null;
         }
     }

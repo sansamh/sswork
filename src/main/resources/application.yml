@@ -20,3 +20,5 @@ spring:
         max-active: 100
         max-idle: 20
         min-idle: 5
+    cluster:
+      nodes:

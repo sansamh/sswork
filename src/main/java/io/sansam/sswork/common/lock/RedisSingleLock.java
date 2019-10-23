@@ -28,51 +28,81 @@ public class RedisSingleLock implements DistributedLock {
 
     @Override
     public boolean lock(String key, String val, long expire, TimeUnit timeUnit) {
+        try {
+            Object result = redisTemplate.execute((RedisCallback) redisConnection -> {
+                JedisCommands commands = (JedisCommands) redisConnection.getNativeConnection();
+                SetParams params = new SetParams();
+                params.nx();
+                // Set the specified expire time, in milliseconds.
+                if (TimeUnit.SECONDS.equals(timeUnit)) {
+                    params.ex(Integer.parseInt(Objects.toString(expire)));
+                } else if (TimeUnit.MILLISECONDS.equals(timeUnit)) {
+                    params.px(expire);
+                } else {
+                    log.error("RedisSingleLock - lock key = [{}] 无法处理的TimeUnit [{}]", key, timeUnit);
+                    return null;
+                }
+                return commands.set(key, val, params);
+            });
+            // 成功返回OK
+            log.info("RedisSingleLock - lock key = [{}] result = [{}]", key, result);
+            return !Objects.isNull(result) && CommonConstant.OK.equals(result.toString());
+        } catch (Exception e) {
+            log.error("RedisSingleLock - lock key = [{}] caught Exception ", key, e);
+            return false;
+        }
 
-        Object result = redisTemplate.execute((RedisCallback) redisConnection -> {
-            JedisCommands commands = (JedisCommands) redisConnection.getNativeConnection();
-            SetParams params = new SetParams();
-            params.nx();
-            // Set the specified expire time, in milliseconds.
-            if (TimeUnit.SECONDS.equals(timeUnit)) {
-                params.ex(Integer.valueOf(Objects.toString(expire)));
-            } else if (TimeUnit.MILLISECONDS.equals(timeUnit)) {
-                params.px(expire);
-            } else {
-                log.error("RedisSingleLock - lock 无法处理的TimeUnit {}", timeUnit);
-                return null;
-            }
-            return commands.set(key, val, params);
-        });
-        // 成功返回OK
-        return !Objects.isNull(result) && CommonConstant.OK.equals(result.toString());
     }
 
     @Override
     public boolean release(String key, String val) {
-        //lua script
-        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-        Object execute = redisTemplate.execute((RedisCallback) redisConnection -> {
-            JedisCommands commands = (JedisCommands) redisConnection.getNativeConnection();
-            if (commands instanceof Jedis) {
-                return ((Jedis) commands).eval(script, Collections.singletonList(key), Collections.singletonList(val));
-            } else if (commands instanceof JedisCluster) {
-                return ((JedisCluster) commands).eval(script, Collections.singletonList(key), Collections.singletonList(val));
-            } else {
-                return 0L;
+        try {
+            //lua script
+            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+            Object execute = redisTemplate.execute((RedisCallback) redisConnection -> {
+                JedisCommands commands = (JedisCommands) redisConnection.getNativeConnection();
+                if (commands instanceof Jedis) {
+                    return ((Jedis) commands).eval(script, Collections.singletonList(key), Collections.singletonList(val));
+                } else if (commands instanceof JedisCluster) {
+                    return ((JedisCluster) commands).eval(script, Collections.singletonList(key), Collections.singletonList(val));
+                } else {
+                    return 0L;
+                }
+            });
+            log.info("RedisSingleLock - release key = [{}] result = [{}]", key, execute);
+            if (Objects.isNull(execute)) {
+                return false;
             }
-        });
-        if (Objects.isNull(execute)) {
+            // 1成功 0失败
+            return CommonConstant.ONE.equals(execute.toString());
+        } catch (Exception e) {
+            log.error("RedisSingleLock - release key = [{}] caught Exception ", key, e);
             return false;
         }
-        // 1成功 0失败
-        return CommonConstant.ONE.equals(execute.toString());
     }
 
     @Override
     public boolean tryLock(String key, String val, long expire, long timeOut, TimeUnit timeUnit) {
-
-
-        return false;
+        try {
+            long begin = System.currentTimeMillis();
+            boolean lock = this.lock(key, val, expire, timeUnit);
+            if (lock) {
+                return lock;
+            }
+            long now = System.currentTimeMillis();
+            long ttl = now - begin;
+            while (ttl > 0) {
+                lock = this.lock(key, val, expire, timeUnit);
+                if (lock) {
+                    return lock;
+                }
+                now = System.currentTimeMillis();
+                ttl = now - ttl;
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("RedisSingleLock - tryLock key = [{}] caught Exception ", key, e);
+            return false;
+        }
     }
 }

@@ -34,7 +34,7 @@ public class RedissonSingleLock implements DistributedLock {
         }
         try {
             RLock lock = singleRedissonClient.getLock(key);
-            lock.lock(3 * expire, timeUnit);
+            lock.lock(expire, timeUnit);
             log.info("Thread [{}] RedissonSingleLock - lock [{}] success", Thread.currentThread().getName(), key);
             return true;
 
@@ -64,6 +64,18 @@ public class RedissonSingleLock implements DistributedLock {
 
     @Override
     public boolean tryLock(String key, String val, long expire, long timeOut, TimeUnit timeUnit) {
-        return false;
+        if (Objects.isNull(singleRedissonClient)) {
+            log.error("RedissonSingleLock - tryLock singleRedissonClient is null");
+            return false;
+        }
+        try {
+            RLock lock = singleRedissonClient.getLock(key);
+            boolean result = lock.tryLock(timeOut, expire, timeUnit);
+            log.info("Thread [{}] RedissonSingleLock - tryLock [{}] result = [{}]", Thread.currentThread().getName(), key, result);
+            return result;
+        } catch (Exception e) {
+            log.error("RedissonSingleLock - tryLock [{}] Exception:", key, e);
+            return false;
+        }
     }
 }

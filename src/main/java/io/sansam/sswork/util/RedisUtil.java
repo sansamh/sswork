@@ -420,7 +420,7 @@ public class RedisUtil {
     }
 
     /**
-     * 移除值为value的
+     * 将数据放入set缓存 失败尝试3次
      *
      * @param key   键
      * @param value 值

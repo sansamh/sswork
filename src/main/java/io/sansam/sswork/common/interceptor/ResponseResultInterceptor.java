@@ -23,6 +23,15 @@ import java.lang.reflect.Method;
 @Component
 public class ResponseResultInterceptor implements HandlerInterceptor {
 
+    /**
+     * 请求拦截器，由于使用redis缓存判断是否需要包装返回值，所以此方法没用了
+     *
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (handler instanceof HandlerMethod) {

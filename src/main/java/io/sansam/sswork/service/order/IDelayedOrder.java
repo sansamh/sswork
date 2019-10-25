@@ -1,4 +1,4 @@
-package service.order;
+package io.sansam.sswork.service.order;
 
 import io.sansam.sswork.po.DelayedObject;
 

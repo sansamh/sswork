@@ -44,7 +44,7 @@ public class RedissonConfig {
         }
     }
 
-    @Bean(name = "clusterRedissonClient")
+//    @Bean(name = "clusterRedissonClient")
     @Nullable
     public RedissonClient getClusterRedissonClient() {
         Config config = new Config();

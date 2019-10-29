@@ -4,20 +4,25 @@ import io.sansam.sswork.common.constant.CommonConstant;
 import io.sansam.sswork.common.lock.DistributedLock;
 import io.sansam.sswork.util.SSBeanUtils;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+
+import static org.mockito.Mockito.*;
+
 
 @SpringBootTest
 class SsworkApplicationTests {
 
-    @Autowired
+    @MockBean(name = "redisSinglelock")
     DistributedLock distributedLock;
 
 
@@ -74,5 +79,18 @@ class SsworkApplicationTests {
 //        final String lock = distributedLock.lock(key, val, time, time);
 //        System.out.println("lockTest -- " + lock);
 //    }
+
+	@Test
+	public void mockTest() {
+		final List list = mock(List.class);
+		when(list.get(0)).thenReturn("hello world");
+
+		String res = Objects.toString(list.get(0));
+
+		System.out.println("res "+res);
+		final Object o = verify(list).get(0);
+		System.out.println("ver " + o);
+
+	}
 
 }

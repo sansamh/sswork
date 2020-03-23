@@ -41,7 +41,7 @@
         <setting name="jdbcTypeForNull" value="NULL" />
 
         <!-- logImpl 可选的值有：SLF4J、LOG4J、LOG4J2、JDK_LOGGING、COMMONS_LOGGING、STDOUT_LOGGING、NO_LOGGING -->
-        <setting name="logImpl" value="LOG4J2" />
+        <setting name="logImpl" value="SLF4J" />
     </settings>
     <typeAliases>
         <typeAlias alias="Integer" type="java.lang.Integer" />
